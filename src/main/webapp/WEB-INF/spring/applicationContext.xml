@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 여기가 스프링 컨테이너 -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+		
+	<!-- DataBase 설정 -->
+	<!-- db설정 파일 loading -->
+	<bean id="propertiyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+			
+				<value>classpath:properties/jdbc.properties</value> <!--이 경로 읽어와라  -->
+			</list>
+		
+		</property>
+	</bean>		
+	
+	<!-- DBMS DataBase Management System -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driverClassName}"/>
+		<property name="url" value="${jdbc.url}"/>
+		<property name="username" value="${jdbc.username}"/>
+		<property name="password" value="${jdbc.password}"/>
+		<property name="initialSize" value="${jdbc.initialSize}"/>
+		<property name="maxActive" value="${jdbc.maxActive}"/>
+		<property name="minIdle" value="${jdbc.initialSize}"/>
+		<property name="maxWait" value="3000"/><!-- 응답대기시간 3초  서버와 클라이언트 사이의 응답대기 시간 -->
+		<property name="poolPreparedStatements" value="true"/>
+		<property name="maxOpenPreparedStatements" value="50"/>
+		
+	</bean>
+	
+	<!-- mybatis 설정 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="mapperLocations" value="classpath:sqls/*.xml" />
+	
+	</bean>
+	
+	<!-- sqlsession 취득  sqlsession이란?    Mybatis를 이용하여 DAO를 구현하려면 SqlSession 객체가 필요하다.
+		 mybatis는 sqlsession을 생성하기 위해 SqlSessionFactory를 사용한다
+		 세션을 한번 생성하면 매핑구문을 실행하거나 커밋 또는 롤백을 하기 위해 세션을 사용할수 있다.
+		  마지막으로 더 이상 필요하지 않은 상태가 되면 세션을 닫는다.
+		   마이바티스 스프링 연동모듈을 사용하면 SqlSessionFactory를 직접 사용할 필요가 없다. 
+		   왜냐하면, 스프링 트랜잭션 설정에 따라 자동으로 커밋 혹은 롤백을 수행하고 닫혀지는,
+		    쓰레드에 안전한 SqlSession 개체가 스프링 빈에 주입될 수 있기 때문이다.
+		    
+		    ===================================================================
+		    SqlSessionTemplate
+		    SqlSessionTemplate은 SqlSession을 구현하고 코드에서 SqlSession를 대체하는 역할을 한다.
+		     SqlSessionTemplate 은 쓰레드에 안전하고 여러개의 DAO나 매퍼에서 공유할수 있다.
+
+				getMapper()에 의해 리턴된 매퍼가 가진 메서드를 포함해서 SQL을 처리하는
+				 마이바티스 메서드를 호출할때 SqlSessionTemplate은 SqlSession이 현재의 스프링 트랜잭션에서 사용될수 있도록 보장한다.
+				  추가적으로 SqlSessionTemplate은 필요한 시점에 세션을 닫고, 
+				  커밋하거나 롤백하는 것을 포함한 세션의 생명주기를 관리한다. 또한 마이바티스 예외를 스프링의 DataAccessException로 변환하는 작업또한 처리한다.
+		    
+	 -->
+	<bean id="sqlsession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory"></constructor-arg>
+		<constructor-arg index="1" value="SIMPLE"></constructor-arg>
+		
+	
+	</bean>
+	<!-- jdbc -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	
+	</bean>
+	
+</beans>

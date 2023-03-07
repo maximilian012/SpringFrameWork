@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+	<mapper namespace="Pds">
+		    
+	<!--  <select id="pdslist" resultType="mul.cam.a.dto.PdsDto">
+	 	
+	 	select seq, id, title, content, filename, newFilename, readcount, downcount, regdate
+	 	
+	 	from pds
+	 
+	 
+	 </select>	  -->   
+		    
+		    
+	<insert id="uploadPds" parameterType="mul.cam.a.dto.PdsDto">
+		
+		insert into pds(id, title, content, filename, newFilename, readcount, downcount, regdate)	
+		values(#{id}, #{title}, #{content}, #{filename}, #{newFilename}, 0, 0, now())
+	
+	</insert>	    
+	
+	<!-- 다운로드 횟수 증가 -->
+	<update id="downCnt" parameterType="Integer">
+		update pds set downcount = downcount+1 
+		where seq = #{seq}
+	
+	</update>
+	
+	
+		<select id="pdsdetail" parameterType="String" resultType="mul.cam.a.dto.PdsDto">
+	
+		select * from pds where seq = #{seq}
+	
+	</select>
+	
+	
+	
+		<!-- 처음에 목록 뿌려주는거 -->
+		<select id="getPdsList" parameterType="mul.cam.a.dto.PdsParam" resultType="mul.cam.a.dto.PdsDto">
+		
+		select seq, id, title, content, filename, newFilename, readcount, downcount, regdate
+	 from pds
+		
+			<if test="choice != null and choice != '' and search != null and search != ''">
+				<if test="choice == 'title'">
+					where title like concat('%', #{search}, '%')
+				
+				</if>
+				<if test="choice == 'content'">
+				
+					where content like concat('%', #{search}, '%')
+				
+				</if>
+				<if test="choice == 'writer'">
+				
+					where id=#{search}
+				
+				</if>
+			</if>
+			
+			order by regdate desc
+			
+	
+		</select>
+	
+		<delete id="pdsdelete">
+	
+			delete from pds where seq = #{seq}
+	
+	
+		</delete>
+	
+	
+	<update id="pdsupdate" parameterType="mul.cam.a.dto.PdsDto">
+	
+		 update pds set title = #{title}, content= #{content}, filename = #{filename},
+		 newFilename = #{newFilename}, regdate = now() where seq = #{seq}
+	
+	</update>
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	</mapper>

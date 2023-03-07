@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+	<mapper namespace="Member">
+	
+	
+	<!-- 
+		resultType이란 MyBatis에서 쿼리문 수행후 메서드 반환타입이 String이나 객체를 반환할 수 있도록 지정하는 속성
+		select에서 주로 쓰임 주로 결과값이 한행이 나오도록 조건절을 설정한다면 String
+		여러행이나 모든 행을 반환 한다면 List반환
+	
+	
+	 -->
+	<select id="allMember" resultType="mul.cam.a.dto.MemberDto">  <!-- 여기서 반환값은 객체를 반환한다. 전체를 반환하니까 -->
+	
+		select * from member
+	
+	</select>
+	
+	<select id="idcheck" resultType="Integer" parameterType="String">  <!-- 여기서 반환값은 객체를 반환한다. 전체를 반환하니까 -->
+	
+		select count(*) from member where id = #{id}
+	
+	</select>
+	
+	<insert id="addmember" parameterType="mul.cam.a.dto.MemberDto">
+	
+		insert into member(id, pwd, name, email, auth)
+		values(#{id}, #{pwd}, #{name}, #{email}, 3)
+	
+	</insert>
+	
+	<select id="loginAf" resultType="mul.cam.a.dto.MemberDto" parameterType="mul.cam.a.dto.MemberDto">
+	
+		select * from member where id=#{id} and pwd=#{pwd}
+	
+	</select>
+	
+	<!-- 정보 찾기 -->
+	<select id="findKakao" parameterType="java.util.HashMap" resultType="mul.cam.a.dto.KakaoDto">
+		select * from kakao_table where k_name=#{nickname} and k_email=#{email}
+	</select>
+
+	<!-- 정보 저장 -->
+	<insert id="kakaoInsert" parameterType="java.util.HashMap">
+		insert into kakao_table(k_name, k_email)
+			values(#{nickname}, #{email})
+	</insert>
+	
+	</mapper>
+	
+	
+
+	
+	
+	
